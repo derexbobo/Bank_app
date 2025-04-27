@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:banking3/welcome/regScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,11 +7,16 @@ import '../pages/activity.dart';
 import '../pages/home.dart';
 import 'forgetpassword.dart';
 
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-class loginScreen extends StatelessWidget {
+class loginScreen extends StatefulWidget {
   const loginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<loginScreen> createState() => _loginScreenState();
+}
+
+class _loginScreenState extends State<loginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,19 +31,14 @@ class loginScreen extends StatelessWidget {
                 colors: [Color(0xffb81736), Color(0xff105062)],
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 60.0, left: 22),
-              child: GestureDetector(
-                onTap: () {
-                  fetchData(); // <-- call your API when tapped
-                },
-                child: const Text(
-                  'Hello\nSign in!',
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+            child: const Padding(
+              padding: EdgeInsets.only(top: 60.0, left: 22),
+              child: Text(
+                'Hello\nSign in!',
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -57,15 +56,16 @@ class loginScreen extends StatelessWidget {
               height: double.infinity,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, right: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
                         suffixIcon: Icon(Icons.check, color: Colors.grey),
                         label: Text(
-                          'Gmail',
+                          'Email',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color(0xff000000),
@@ -73,8 +73,10 @@ class loginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
                         suffixIcon: Icon(
                           Icons.visibility_off,
                           color: Colors.grey,
@@ -111,7 +113,6 @@ class loginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 80),
-                    const SizedBox(height: 70),
                     Container(
                       height: 55,
                       width: 300,
@@ -122,14 +123,54 @@ class loginScreen extends StatelessWidget {
                         ),
                       ),
                       child: GestureDetector(
-                        onTap: () {
-                          // Navigate to ActivityPage on button press
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Home(),
-                            ),
-                          );
+                        onTap: () async {
+                          // DIRECT API call inside onTap
+                          try {
+                            final response = await http.post(
+                              Uri.parse(
+                                  'http://10.237.198.176:3000/api/users/login'),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                "email": emailController.text.trim(),
+                                "password": passwordController.text.trim(),
+                              }),
+                            );
+
+                            if (response.statusCode == 200) {
+                              final data = json.decode(response.body);
+
+                              if (data['message'] == "Login successful") {
+                                String userId = data['user_id'];
+                                String role = data['role'];
+                                String fullName = data['full_name'];
+
+                                print(
+                                    'Login Success! User ID: $userId, Role: $role, Name: $fullName');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Home()),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Login Failed: ${data['message']}')),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Server Error: ${response.statusCode}')),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Exception: $e')),
+                            );
+                          }
                         },
                         child: const Center(
                           child: Text(
@@ -170,7 +211,6 @@ class loginScreen extends StatelessWidget {
                             child: const Text(
                               "Sign up",
                               style: TextStyle(
-                                ///done login page
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
                                 color: Colors.blue,
@@ -204,3 +244,49 @@ Future<void> fetchData() async {
     print('Exception: $e');
   }
 }
+
+// Future<void> loginUser(BuildContext context) async {
+//   try {
+//     final response = await http.post(
+//       Uri.parse('http://10.237.198.176:3000/login'), // your login API endpoint
+//       headers: {"Content-Type": "application/json"},
+//       body: jsonEncode({
+//         "email": emailController.text.trim(),
+//         "password": passwordController.text.trim(),
+//       }),
+//     );
+//
+//     if (response.statusCode == 200) {
+//       final data = json.decode(response.body);
+//
+//       if (data['message'] == "Login successful") {
+//         String userId = data['user_id'];
+//         String role = data['role'];
+//         String fullName = data['full_name'];
+//
+//         print('Login Success! User ID: $userId, Role: $role, Name: $fullName');
+//
+//         // Navigate to Home screen
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(builder: (context) => const Home()),
+//         );
+//       } else {
+//         print('Login failed: ${data['message']}');
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('Login Failed: ${data['message']}')),
+//         );
+//       }
+//     } else {
+//       print('Error: ${response.statusCode}');
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Server Error: ${response.statusCode}')),
+//       );
+//     }
+//   } catch (e) {
+//     print('Exception: $e');
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('Exception: $e')),
+//     );
+//   }
+// }
