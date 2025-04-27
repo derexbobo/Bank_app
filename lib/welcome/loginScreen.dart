@@ -150,7 +150,9 @@ class _loginScreenState extends State<loginScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => const Home()),
+                                    builder: (context) => Home(
+                                        fullName: fullName), // pass fullName
+                                  ),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(

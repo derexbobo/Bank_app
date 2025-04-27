@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-
 import '../widgets/action_button.dart';
 import '../widgets/credit_card.dart';
 import '../widgets/transaction_list.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  final String fullName; // 👈 Add this to receive full name
+
+  const Home({super.key, required this.fullName});
 
   @override
   Widget build(BuildContext context) {
@@ -20,16 +21,16 @@ class Home extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Welcome back!",
                         style: TextStyle(color: Colors.white),
                       ),
                       Text(
-                        "Senithu ",
-                        style: TextStyle(
+                        fullName, // 👈 Use the passed fullName here
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -54,10 +55,8 @@ class Home extends StatelessWidget {
                     child: const Column(
                       children: [
                         SizedBox(height: 110),
-                        //   ActionButtons
                         ActionButtons(),
                         SizedBox(height: 30),
-                        //   TransactionList
                         TransactionList(),
                       ],
                     ),
