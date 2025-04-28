@@ -4,7 +4,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '../widgets/top_up_sheet.dart';
 
 class TopUpPage extends StatefulWidget {
-  const TopUpPage({super.key});
+  final String userId; // <-- Add this
+  const TopUpPage({super.key, required this.userId});
 
   @override
   State<TopUpPage> createState() => _TopUpPageState();
@@ -111,12 +112,13 @@ class _TopUpPageState extends State<TopUpPage> {
                       top: Radius.circular(20),
                     ),
                   ),
-                  builder:
-                      (context) => TopUpBottomSheet(
-                        selectedProvider: selectedProvider,
-                        image: getImageForProvider(selectedProvider),
-                        account: getAccountForProvider(selectedProvider),
-                      ),
+                  builder: (context) => TopUpBottomSheet(
+                    selectedProvider: selectedProvider,
+                    image: getImageForProvider(selectedProvider),
+                    account: getAccountForProvider(selectedProvider),
+                    userId: widget.userId,
+                    // <-- error in here
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(

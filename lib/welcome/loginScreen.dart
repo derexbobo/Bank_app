@@ -151,7 +151,9 @@ class _loginScreenState extends State<loginScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => Home(
-                                        fullName: fullName), // pass fullName
+                                      fullName: fullName,
+                                      userId: userId,
+                                    ), // pass fullName
                                   ),
                                 );
                               } else {

@@ -4,7 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TransferMoney extends StatelessWidget {
-  const TransferMoney({super.key});
+  final String userId; //
+  const TransferMoney({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +131,8 @@ class TransferMoney extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const TopUpPage(),
+                        builder: (context) =>
+                            TopUpPage(userId: userId), // error in here
                       ),
                     );
                   },

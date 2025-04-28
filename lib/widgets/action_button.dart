@@ -6,7 +6,9 @@ import '../pages/profile.dart';
 import '../pages/transfer_money.dart';
 
 class ActionButtons extends StatelessWidget {
-  const ActionButtons({super.key});
+  final String userId; //
+
+  const ActionButtons({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,7 @@ class ActionButtons extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const TransferMoney(),
+                    builder: (context) => TransferMoney(userId: userId),
                   ),
                 );
               },

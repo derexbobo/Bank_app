@@ -4,12 +4,14 @@ class TopUpBottomSheet extends StatefulWidget {
   final String selectedProvider;
   final String account;
   final String image;
+  final String userId; // <-- ADD THIS
 
   const TopUpBottomSheet({
     super.key,
     required this.selectedProvider,
     required this.account,
     required this.image,
+    required this.userId, // <-- ADD THIS
   });
 
   @override
@@ -109,43 +111,42 @@ class _TopUpBottomSheetState extends State<TopUpBottomSheet> {
             child: Wrap(
               spacing: 20,
               runSpacing: 20,
-              children:
-                  [5, 10, 15, 20, 50, 100, 200, 500].map((value) {
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          amount = value.toDouble();
-                        });
-                      },
+              children: [5, 10, 15, 20, 50, 100, 200, 500].map((value) {
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      amount = value.toDouble();
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: amount == value
+                          ? const Color.fromARGB(255, 16, 80, 98)
+                          : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 70,
-                        height: 70,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color:
-                              amount == value
-                                  ? const Color.fromARGB(255, 16, 80, 98)
-                                  : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '\$$value',
-                          style: TextStyle(
-                            color:
-                                amount == value ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 17,
-                          ),
-                        ),
+                    ),
+                    child: Text(
+                      '\$$value',
+                      style: TextStyle(
+                        color: amount == value ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 17,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 60),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              print('User ID: ${widget.userId}');
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,

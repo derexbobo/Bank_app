@@ -5,8 +5,11 @@ import '../widgets/transaction_list.dart';
 
 class Home extends StatelessWidget {
   final String fullName; // 👈 Add this to receive full name
+  final String
+      userId; // 👈 add this  const Home({super.key, required this.fullName});
 
-  const Home({super.key, required this.fullName});
+  const Home(
+      {super.key, required this.fullName, required this.userId}); // 👈 add this
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +55,12 @@ class Home extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(top: 167),
                     color: Colors.white,
-                    child: const Column(
+                    child: Column(
                       children: [
-                        SizedBox(height: 110),
-                        ActionButtons(),
-                        SizedBox(height: 30),
-                        TransactionList(),
+                        const SizedBox(height: 110),
+                        ActionButtons(userId: userId),
+                        const SizedBox(height: 30),
+                        const TransactionList(),
                       ],
                     ),
                   ),
