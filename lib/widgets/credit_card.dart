@@ -12,7 +12,7 @@ class CreditCard extends StatefulWidget {
 }
 
 class _CreditCardState extends State<CreditCard> {
-  double? balance;
+  double balance = 0.0;
   bool isLoading = true;
 
   @override
@@ -22,30 +22,27 @@ class _CreditCardState extends State<CreditCard> {
   }
 
   Future<void> fetchBalance() async {
-    const String baseUrl = 'http://10.237.198.176:3000'; // <-- Your base URL
+    const String baseUrl = 'http://10.237.198.176:3000'; // change if needed
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/accounts/user/${widget.userId}'),
       );
-
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['accounts'] != null && data['accounts'].isNotEmpty) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data.containsKey('accounts') && data['accounts'].isNotEmpty) {
+          double newBalance =
+              double.tryParse(data['accounts'][0]['balance'].toString()) ?? 0.0;
           setState(() {
-            balance = data['accounts'][0]['balance'].toDouble();
+            balance = newBalance;
             isLoading = false;
           });
-        } else {
-          print('No accounts found');
-          setState(() => isLoading = false);
         }
       } else {
-        print('Failed to fetch balance. Status code: ${response.statusCode}');
-        setState(() => isLoading = false);
+        print('Failed to fetch balance.');
       }
     } catch (e) {
       print('Error fetching balance: $e');
-      setState(() => isLoading = false);
     }
   }
 
@@ -107,7 +104,7 @@ class _CreditCardState extends State<CreditCard> {
                       isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
-                              'LKR: ${balance?.toStringAsFixed(2) ?? "0.00"}',
+                              'LKR: ${balance.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -115,7 +112,6 @@ class _CreditCardState extends State<CreditCard> {
                               ),
                             ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           CircleAvatar(
                             radius: 15,
