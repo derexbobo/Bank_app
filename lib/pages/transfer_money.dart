@@ -34,9 +34,9 @@ class TransferMoney extends StatelessWidget {
                   child: Row(
                     children: List.generate(
                       3,
-                      (index) => const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5.0),
-                        child: CreditCard(),
+                      (index) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: CreditCard(userId: userId), // error in here
                       ),
                     ),
                   ),

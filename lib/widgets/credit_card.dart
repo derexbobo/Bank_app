@@ -1,7 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class CreditCard extends StatelessWidget {
-  const CreditCard({super.key});
+class CreditCard extends StatefulWidget {
+  final String userId; // <-- Pass the user ID here
+
+  const CreditCard({super.key, required this.userId});
+
+  @override
+  State<CreditCard> createState() => _CreditCardState();
+}
+
+class _CreditCardState extends State<CreditCard> {
+  double? balance;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBalance();
+  }
+
+  Future<void> fetchBalance() async {
+    const String baseUrl = 'http://10.237.198.176:3000'; // <-- Your base URL
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/accounts/user/${widget.userId}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['accounts'] != null && data['accounts'].isNotEmpty) {
+          setState(() {
+            balance = data['accounts'][0]['balance'].toDouble();
+            isLoading = false;
+          });
+        } else {
+          print('No accounts found');
+          setState(() => isLoading = false);
+        }
+      } else {
+        print('Failed to fetch balance. Status code: ${response.statusCode}');
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      print('Error fetching balance: $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +104,16 @@ class CreditCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        '\$10,250.00',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'LKR: ${balance?.toStringAsFixed(2) ?? "0.00"}',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [

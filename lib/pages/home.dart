@@ -64,11 +64,11 @@ class Home extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 20,
                     left: 25,
                     right: 25,
-                    child: CreditCard(),
+                    child: CreditCard(userId: userId),
                   ),
                 ],
               ),
