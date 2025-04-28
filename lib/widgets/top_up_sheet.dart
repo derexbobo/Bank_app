@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TopUpBottomSheet extends StatefulWidget {
   final String selectedProvider;
@@ -144,8 +146,32 @@ class _TopUpBottomSheetState extends State<TopUpBottomSheet> {
           ),
           const SizedBox(height: 60),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               print('User ID: ${widget.userId}');
+
+              String? accountId = await fetchAccountId(widget.userId);
+
+              if (accountId != null) {
+                print('Fetched Account ID: $accountId');
+
+                // Now create the transaction
+                await createTransaction(accountId: accountId, amount: amount);
+
+                // Optional: Show a success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Top Up successful!')),
+                );
+
+                // Optional: Close the bottom sheet
+                Navigator.of(context).pop();
+              } else {
+                print('Failed to fetch account ID.');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Failed to fetch account. Please try again.')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
@@ -163,5 +189,66 @@ class _TopUpBottomSheetState extends State<TopUpBottomSheet> {
         ],
       ),
     );
+  }
+}
+
+Future<String?> fetchAccountId(String userId) async {
+  const String baseUrl = 'http://10.237.198.176:3000'; // <-- change this
+
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/accounts/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      if (data.containsKey('accounts') && data['accounts'].isNotEmpty) {
+        // Get the first account's account_id
+        String accountId = data['accounts'][0]['account_id'];
+        print('Fetched Account ID: $accountId');
+        return accountId;
+      } else {
+        print('No accounts found for this user.');
+        return null;
+      }
+    } else {
+      print('Failed to fetch account. Status Code: ${response.statusCode}');
+      return null;
+    }
+  } catch (e) {
+    print('Error fetching account: $e');
+    return null;
+  }
+}
+
+Future<void> createTransaction({
+  required String accountId,
+  required double amount,
+}) async {
+  const String baseUrl = 'http://10.237.198.176:3000'; // <-- same as before
+
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/transactions/'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'account_id': accountId,
+        'transaction_type': 'Withdrawal', // or 'TopUp' if you want
+        'amount': amount.toInt(), // convert double to int if needed
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      print('Transaction successful!');
+    } else {
+      print(
+          'Failed to create transaction. Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+    }
+  } catch (e) {
+    print('Error creating transaction: $e');
   }
 }
